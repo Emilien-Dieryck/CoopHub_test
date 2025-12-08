@@ -1,0 +1,17 @@
+### Test login with username
+POST http://localhost:4000/api/login
+Content-Type: application/json
+
+{
+  "identifier": "john_doe",
+  "password": "123456"
+}
+
+### Test login with email
+POST http://localhost:4000/api/login
+Content-Type: application/json
+
+{
+  "identifier": "john@example.com",
+  "password": "123456"
+}
