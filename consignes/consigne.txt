@@ -1,0 +1,7 @@
+1.Mettre en oeuvre le HTML/SASS pour cette page
+
+2.L'intégrer dans un un framework JavaScript type React, Angular, Vuejs (au choix) en SPA
+
+3.Réaliser le formulaire et envoyer les données du formulaire vers un backend (en http post)
+
+4.Développer un petit backend pour récupérer ces données et les afficher en log (technologies au choix)
