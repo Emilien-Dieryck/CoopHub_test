@@ -20,18 +20,24 @@ src/
 │   ├── logo.png             # Logo CoopHub
 │   └── background.png       # Image de fond
 ├── components/
-│   ├── Input.tsx            # Composant Input réutilisable
-│   └── Input.scss           # Styles du composant Input
+│   └── Input.tsx            # Composant Input réutilisable (avec toggle password)
+├── config/
+│   └── constants.ts         # Configuration centralisée
 ├── hooks/
 │   └── useForm.ts           # Hook de gestion de formulaire
 ├── pages/
 │   └── LoginPage/
-│       ├── LoginPage.tsx    # Page de connexion
-│       └── LoginPage.scss   # Styles de la page
+│       └── LoginPage.tsx    # Page de connexion
 ├── styles/
-│   ├── _variables.scss      # Variables SASS (couleurs, espacements)
-│   └── global.scss          # Styles globaux
-├── types.ts                 # Types TypeScript
+│   ├── variables.scss       # Variables SASS (couleurs, espacements)
+│   ├── global.scss          # Styles globaux
+│   ├── Input.scss           # Styles du composant Input
+│   └── LoginPage.scss       # Styles de la page de connexion
+├── types/
+│   └── types.ts             # Types TypeScript
+├── utils/
+│   ├── storage.ts           # Wrapper sécurisé localStorage
+│   └── validation.ts        # Validation des entrées
 ├── App.tsx                  # Composant principal
 └── main.tsx                 # Point d'entrée React
 ```
@@ -65,12 +71,12 @@ npm run preview
 ## 🔐 Fonctionnalités
 
 ### Sécurité
-- ✅ **Input sanitization** - Suppression caractères dangereux
-- ✅ **XSS protection** - Escaping HTML lors de l'affichage
-- ✅ **Rate limiting** - Max 5 tentatives de connexion
-- ✅ **Request timeout** - 10 secondes maximum
+- ✅ **Validation côté client** - Feedback immédiat à l'utilisateur
+- ✅ **XSS protection** - React échappe automatiquement le HTML
 - ✅ **Secure storage** - Wrapper localStorage avec error handling
-- ✅ **Validation stricte** - Regex patterns et contraintes de longueur
+- ✅ **Validation stricte** - Contraintes de longueur
+
+> Note : La sécurité principale (rate limiting, bcrypt, JWT) est gérée côté backend
 
 ### Fonctionnalités Utilisateur
 - ✅ Formulaire de connexion avec validation temps réel
@@ -133,19 +139,16 @@ POST /api/login
 
 ## 📚 Documentation
 
-- **[SECURITY.md](./SECURITY.md)** - Architecture et bonnes pratiques de sécurité
-- **JSDoc inline** - Documentation complète dans le code
-
 ### Fichiers Clés
 
 | Fichier | Description |
 |---------|-------------|
 | `config/constants.ts` | Configuration centralisée (API, validation, erreurs) |
-| `utils/validation.ts` | Validation et sanitization des entrées |
-| `utils/security.ts` | Rate limiting, XSS protection, helpers |
+| `utils/validation.ts` | Validation des entrées utilisateur |
 | `utils/storage.ts` | Wrapper sécurisé pour localStorage |
 | `hooks/useForm.ts` | Hook réutilisable de gestion de formulaire |
 | `api/authApi.ts` | Appels API avec timeout et error handling |
+| `components/Input.tsx` | Input réutilisable avec toggle password |
 
 ## 🛠️ Scripts Disponibles
 
@@ -156,22 +159,16 @@ npm run preview  # Prévisualiser le build
 npm run lint     # Linter le code (si configuré)
 ```
 
-## 🧪 Tests de Sécurité
+## 🧪 Tests
 
-### Test Rate Limiting
-1. Tenter 5 connexions échouées successives
-2. Vérifier le message "Trop de tentatives"
-3. Attendre 5 minutes ou recharger la page
+### Validation
+1. Identifier avec moins de 3 caractères → erreur affichée
+2. Password avec moins de 4 caractères → erreur affichée
+3. Bouton désactivé tant que le formulaire est invalide
 
-### Test XSS
-1. Tenter d'injecter `<script>alert('XSS')</script>` dans identifier
-2. Vérifier que le script est sanitizé/échappé
-3. Aucun script ne doit s'exécuter
-
-### Test Validation
-1. Tenter identifier avec moins de 3 caractères → erreur
-2. Tenter password avec moins de 4 caractères → erreur
-3. Tenter caractères invalides (`<`, `>`, etc.) → supprimés
+### Toggle Password
+1. Cliquer sur l'icône œil → affiche le mot de passe
+2. Re-cliquer → masque le mot de passe
 
 ## 🌐 Compatibilité
 
@@ -194,16 +191,11 @@ VITE_TOKEN_STORAGE_KEY=authToken
 VITE_USER_STORAGE_KEY=userData
 ```
 
-### Constantes de Sécurité
+### Constantes de Validation
 
 Modifiables dans `src/config/constants.ts` :
 
 ```typescript
-SECURITY_CONFIG: {
-  MAX_LOGIN_ATTEMPTS: 5,           // Tentatives avant verrouillage
-  LOCKOUT_DURATION: 5 * 60 * 1000, // Durée de verrouillage (ms)
-}
-
 VALIDATION_RULES: {
   IDENTIFIER: {
     MIN_LENGTH: 3,
