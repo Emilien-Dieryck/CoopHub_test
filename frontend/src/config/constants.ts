@@ -3,26 +3,55 @@
  * Centralized configuration for security, API, and validation settings
  */
 
+// ============================================
+// Environment Variables
+// ============================================
+const getEnvVar = (key: string, fallback: string): string => {
+  const value = import.meta.env[key as keyof ImportMetaEnv];
+  return (value as string) || fallback;
+};
+
+const API_BASE_URL = getEnvVar(
+  'VITE_API_BASE_URL',
+  'http://localhost:4000/api'
+);
+
+const TOKEN_STORAGE_KEY = getEnvVar(
+  'VITE_TOKEN_STORAGE_KEY',
+  'coophub_auth_token'
+);
+
+const USER_STORAGE_KEY = getEnvVar(
+  'VITE_USER_STORAGE_KEY',
+  'coophub_user_data'
+);
+
+// ============================================
+// API Configuration
+// ============================================
 /**
  * API Configuration
- * Base URL is read from environment variable for security and flexibility
+ * Centralized API settings with security measures
  */
 export const API_CONFIG = {
-  BASE_URL: (import.meta as any).env.VITE_API_BASE_URL || 'http://localhost:4000/api',
-  TIMEOUT: 10000, // 10 seconds
+  BASE_URL: API_BASE_URL,
+  TIMEOUT: 10000, // 10 seconds (prevents slowloris attacks)
   ENDPOINTS: {
     LOGIN: '/login',
     LOGOUT: '/logout',
   },
 } as const;
 
+// ============================================
+// Storage Configuration
+// ============================================
 /**
  * Local Storage Keys
- * Using environment variables to prevent hardcoded keys
+ * Centralized storage keys for type safety and consistency
  */
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: (import.meta as any).env.VITE_TOKEN_STORAGE_KEY || 'authToken',
-  USER_DATA: (import.meta as any).env.VITE_USER_STORAGE_KEY || 'userData',
+  AUTH_TOKEN: TOKEN_STORAGE_KEY,
+  USER_DATA: USER_STORAGE_KEY,
 } as const;
 
 /**
@@ -46,12 +75,9 @@ export const VALIDATION_RULES = {
 
 /**
  * Security Configuration
+ * XSS prevention patterns for client-side validation
  */
 export const SECURITY_CONFIG = {
-  // Maximum login attempts before temporary lockout
-  MAX_LOGIN_ATTEMPTS: 5,
-  // Lockout duration in milliseconds (5 minutes)
-  LOCKOUT_DURATION: 5 * 60 * 1000,
   // Characters not allowed in user input (XSS prevention)
   FORBIDDEN_CHARS: /<|>|&lt;|&gt;|javascript:|onerror=|onclick=/gi,
 } as const;
@@ -81,5 +107,4 @@ export const ERROR_MESSAGES = {
   TOO_SHORT: (min: number) => `Minimum ${min} caractères requis.`,
   TOO_LONG: (max: number) => `Maximum ${max} caractères autorisés.`,
   INVALID_CHARACTERS: 'Caractères invalides détectés.',
-  TOO_MANY_ATTEMPTS: 'Trop de tentatives. Veuillez réessayer plus tard.',
 } as const;

@@ -1,28 +1,20 @@
 /**
  * Login Page Component
- * Secure authentication page with rate limiting and input validation
+ * Secure authentication page with input validation
  * 
  * Security features:
- * - Input sanitization
- * - Rate limiting (max 5 attempts)
- * - XSS protection
+ * - Input sanitization (via validation.ts)
+ * - Rate limiting (handled by backend)
+ * - XSS protection (React auto-escapes)
  * - Secure storage handling
- * - CSRF protection ready
  */
 
 import React, { useState } from 'react';
 import { login } from '../../api/authApi';
 import { useForm } from '../../hooks/useForm';
 import Input from '../../components/Input';
-import { LoginCredentials } from '../../types';
+import { LoginCredentials } from '../../types/types';
 import { setAuthToken, setUserData, clearAppStorage } from '../../utils/storage';
-import { 
-  checkLoginAttempts, 
-  recordFailedAttempt, 
-  clearLoginAttempts,
-  formatLockoutTime,
-  escapeHtml
-} from '../../utils/security';
 import { ERROR_MESSAGES } from '../../config/constants';
 import logo from '../../assets/logo.png';
 import background from '../../assets/background.png';
@@ -42,30 +34,16 @@ const LoginPage: React.FC = () => {
   });
 
   /**
-   * Handles login form submission with security checks
-   * - Validates rate limiting
-   * - Sanitizes inputs
-   * - Stores credentials securely
-   * - Tracks failed attempts
+   * Handles login form submission
+   * - Validates inputs (via useForm hook)
+   * - Stores credentials securely on success
+   * - Rate limiting is handled by backend
    */
   const onSubmit = async (credentials: LoginCredentials) => {
-    // Check rate limiting before attempting login
-    const { isLocked, remainingTime } = checkLoginAttempts(credentials.identifier);
-    
-    if (isLocked && remainingTime) {
-      setErrors({
-        general: `${ERROR_MESSAGES.TOO_MANY_ATTEMPTS} Réessayez dans ${formatLockoutTime(remainingTime)}.`,
-      });
-      return;
-    }
-
     try {
       const response = await login(credentials);
       
       if (response.success) {
-        // Clear failed attempts on successful login
-        clearLoginAttempts(credentials.identifier);
-        
         // Store auth data securely
         if (response.token) {
           setAuthToken(response.token);
@@ -77,20 +55,13 @@ const LoginPage: React.FC = () => {
         }
         
         setLoginSuccess(true);
-        
-        // Log success (no sensitive data)
-        console.log('✅ Connexion réussie');
       }
-    } catch (error: any) {
-      // Record failed attempt for rate limiting
-      recordFailedAttempt(credentials.identifier);
-      
+    } catch (error: unknown) {
+      // Display error message from backend (rate limiting, invalid credentials, etc.)
+      const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.INVALID_CREDENTIALS;
       setErrors({
-        general: error.message || ERROR_MESSAGES.INVALID_CREDENTIALS,
+        general: errorMessage,
       });
-      
-      // Log error without exposing sensitive data
-      console.error('❌ Erreur de connexion');
     }
   };
 
@@ -128,10 +99,10 @@ const LoginPage: React.FC = () => {
             <div className="success-icon">✓</div>
             <h1 className="success-title">Connexion réussie !</h1>
             <p className="success-message">
-              Bienvenue <strong>{escapeHtml(userInfo.username)}</strong>
+              Bienvenue <strong>{userInfo.username}</strong>
             </p>
             <div className="user-details">
-              <p><strong>Email:</strong> {escapeHtml(userInfo.email)}</p>
+              <p><strong>Email:</strong> {userInfo.email}</p>
             </div>
             <button 
               className="logout-button"
