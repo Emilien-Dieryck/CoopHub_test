@@ -162,6 +162,3 @@ Le projet a été testé contre :
 }
 ```
 
-## 📄 License
-
-MIT License - voir [LICENSE](LICENSE)
