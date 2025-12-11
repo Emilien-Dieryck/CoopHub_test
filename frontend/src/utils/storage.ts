@@ -64,22 +64,6 @@ export const setStorageItem = <T>(key: string, value: T): boolean => {
 };
 
 /**
- * Safely removes an item from localStorage
- * 
- * @param key - Storage key to remove
- * 
- * @example
- * removeStorageItem('authToken')
- */
-export const removeStorageItem = (key: string): void => {
-  try {
-    localStorage.removeItem(key);
-  } catch (error) {
-    console.error(`Error removing from localStorage (${key}):`, error);
-  }
-};
-
-/**
  * Clears all application-related data from localStorage
  * Only removes known app keys to avoid affecting other apps
  * 
@@ -144,21 +128,4 @@ export const getUserData = (): StoredUser | null => {
  */
 export const setUserData = (user: StoredUser): boolean => {
   return setStorageItem(STORAGE_KEYS.USER_DATA, user);
-};
-
-/**
- * Checks if user is authenticated
- * Validates both token and user data presence
- * 
- * @returns True if authenticated, false otherwise
- * 
- * @example
- * if (isAuthenticated()) {
- *   // User is logged in
- * }
- */
-export const isAuthenticated = (): boolean => {
-  const token = getAuthToken();
-  const user = getUserData();
-  return !!token && !!user;
 };

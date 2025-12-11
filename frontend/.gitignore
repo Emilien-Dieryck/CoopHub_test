@@ -1,33 +1,82 @@
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
 .pnp
 .pnp.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Testing
-coverage/
-
-# Production
+# ============================================
+# Build Outputs
+# ============================================
 dist/
 build/
+*.tsbuildinfo
 
-# Misc
-.DS_Store
-*.pem
+# ============================================
+# Testing
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Local env files
+# ============================================
+# Environment Variables
+# CRITICAL: Keep local env vars out of version control
+# ============================================
 .env
 .env.local
+.env.local.example~
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Editor directories and files
+# ============================================
+# IDE and Editor
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+.project
+.classpath
+*.c9/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# System Files
+# ============================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# OS Temporary Files
+# ============================================
+*~
+.tmp
+.cache/
+.vuepress/dist
+
 .vscode/*
 !.vscode/extensions.json
 .idea

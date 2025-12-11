@@ -44,6 +44,11 @@ export const validateIdentifier = (identifier: string): string | undefined => {
     return ERROR_MESSAGES.REQUIRED_FIELD;
   }
   
+  // Additional security check: detect malicious patterns
+  if (containsMaliciousContent(sanitized)) {
+    return ERROR_MESSAGES.INVALID_CHARACTERS;
+  }
+  
   if (sanitized.length < VALIDATION_RULES.IDENTIFIER.MIN_LENGTH) {
     return ERROR_MESSAGES.TOO_SHORT(VALIDATION_RULES.IDENTIFIER.MIN_LENGTH);
   }
@@ -89,31 +94,13 @@ export const validatePassword = (password: string): string | undefined => {
 };
 
 /**
- * Validates email format
- * Uses standard email regex pattern
- * 
- * @param email - Email address to validate
- * @returns True if valid email format, false otherwise
- * 
- * @example
- * isValidEmail('test@example.com') // Returns: true
- * isValidEmail('invalid-email') // Returns: false
- */
-export const isValidEmail = (email: string): boolean => {
-  return VALIDATION_RULES.EMAIL.PATTERN.test(email);
-};
-
-/**
  * Checks if input contains potentially dangerous content
- * Used as an additional security layer
+ * Additional security layer to detect malicious patterns
  * 
  * @param input - String to check for malicious content
  * @returns True if dangerous content detected, false otherwise
- * 
- * @example
- * containsMaliciousContent('<script>') // Returns: true
- * containsMaliciousContent('normal text') // Returns: false
  */
-export const containsMaliciousContent = (input: string): boolean => {
+const containsMaliciousContent = (input: string): boolean => {
+  if (!input) return false;
   return SECURITY_CONFIG.FORBIDDEN_CHARS.test(input);
 };
