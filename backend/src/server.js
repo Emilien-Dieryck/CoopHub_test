@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import app from "./app.js";
+import logger from "./utils/logger.js";
 
 /**
  * Server port - defaults to 4000
@@ -21,5 +22,5 @@ const PORT = process.env.PORT || 4000;
  * Start the server and listen for incoming requests
  */
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+  logger.info(`Backend running on http://localhost:${PORT}`);
 });
