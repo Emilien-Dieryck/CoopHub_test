@@ -47,8 +47,9 @@ npm run dev
 ## 🔐 Compte de test
 
 ```
+Username : admin
 Email : admin@example.com
-Mot de passe : admin123
+Mot de passe : abcde123
 ```
 
 ## 🛠️ Stack technique
