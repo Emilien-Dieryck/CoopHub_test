@@ -3,6 +3,11 @@
  * Initializes and starts the Express server
  */
 
+import dotenv from "dotenv";
+
+// Load environment variables from .env BEFORE importing app
+dotenv.config();
+
 import app from "./app.js";
 
 /**

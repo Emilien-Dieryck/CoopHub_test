@@ -1,10 +1,17 @@
 /**
  * Authentication Routes
- * Defines all authentication-related endpoints
+ * Defines all authentication-related endpoints with security middleware
+ * 
+ * Features:
+ * - Rate limiting (prevents brute force)
+ * - Input validation (server-side)
+ * - JWT token generation
+ * - Secure error handling
  */
 
 import express from "express";
 import { login } from "../controllers/authController.js";
+import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
 
 /**
  * Express Router instance for authentication routes
@@ -13,12 +20,35 @@ import { login } from "../controllers/authController.js";
 const router = express.Router();
 
 /**
- * POST /api/login
- * User login endpoint
- * Authenticates user with username/email and password
- * @route POST /login
+ * POST /api/auth/login
+ * User login endpoint with security measures
+ * 
+ * Middleware:
+ * - rateLimitMiddleware: Limits attempts (5 per 5 minutes per identifier)
+ * 
+ * Request body:
+ * {
+ *   "identifier": "username or email",
+ *   "password": "password"
+ * }
+ * 
+ * Success response (200):
+ * {
+ *   "success": true,
+ *   "message": "Login successful",
+ *   "user": { "id": 1, "username": "john_doe", "email": "john@example.com" },
+ *   "token": "eyJhbGciOiJIUzI1NiIs..."
+ * }
+ * 
+ * Error responses:
+ * - 400 Bad Request: Validation error
+ * - 401 Unauthorized: Invalid credentials
+ * - 429 Too Many Requests: Rate limited
+ * 
+ * @route POST /auth/login
  * @see authController.login for implementation details
  */
-router.post("/login", login);
-
+// Expose a simple, legacy-friendly endpoint: POST /api/login
+// Rate limiting prevents brute force attacks
+router.post("/login", rateLimitMiddleware, login);
 export default router;

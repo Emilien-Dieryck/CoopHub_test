@@ -18,11 +18,11 @@ import { usersData } from "../data/users.js";
  *
  * @example
  * const user = findByUsernameOrEmail('john_doe');
- * // Returns: { id: 1, username: 'john_doe', email: 'john@example.com', password: 'Emilien123' }
+ * // Returns: { id: 1, username: 'john_doe', email: 'john@example.com', password: '$2b$10$...' }
  *
  * @example
  * const userByEmail = findByUsernameOrEmail('john@example.com');
- * // Returns: { id: 1, username: 'john_doe', email: 'john@example.com', password: 'Emilien123' }
+ * // Returns: { id: 1, username: 'john_doe', email: 'john@example.com', password: '$2b$10$...' }
  */
 export const findByUsernameOrEmail = (identifier) => {
   return usersData.find(u => u.username === identifier || u.email === identifier);

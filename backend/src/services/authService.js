@@ -1,39 +1,113 @@
 /**
  * Authentication Service
- * Business logic for user authentication
+ * Business logic for user authentication with security measures
+ * 
+ * Features:
+ * - Input validation and sanitization
+ * - Password comparison using bcrypt (constant-time)
+ * - JWT token generation
+ * - No sensitive data in logs
  */
 
 import { findByUsernameOrEmail } from "../repositories/userRepository.js";
 import { BadRequestError, UnauthorizedError } from "../exceptions/index.js";
+import { 
+  validateIdentifier, 
+  validatePassword, 
+  comparePasswords, 
+  generateToken 
+} from "../utils/securityUtils.js";
+import { recordFailedAttempt, clearLoginAttempts } from "../middleware/rateLimitMiddleware.js";
+import logger from "../utils/logger.js";
 
 /**
  * Authenticates user with provided credentials
- * Validates identifier and password, then verifies against stored user data
+ * Implements security best practices:
+ * - Input validation and sanitization
+ * - Constant-time password comparison (bcrypt)
+ * - Rate limiting (tracks failed attempts)
+ * - JWT token generation
+ * - No sensitive data logged
  *
- * @param {string} identifier - Username or email of the user
- * @param {string} password - User's password (plain text for mock, should be hashed in production)
- * @returns {Object} Authenticated user object with sanitized data
- * @returns {number} returns.id - User's unique identifier
- * @returns {string} returns.username - User's username
- * @returns {string} returns.email - User's email address
+ * @param {string} identifier - Username or email of the user (validated)
+ * @param {string} password - User's password (validated, compared via bcrypt)
+ * @returns {Object} Authentication result
+ * @returns {string} returns.message - Success message
+ * @returns {Object} returns.user - User data (id, username, email)
+ * @returns {string} returns.token - JWT authentication token
  *
- * @throws {BadRequestError} If identifier or password is missing or empty
- * @throws {UnauthorizedError} If user not found or password is incorrect
+ * @throws {BadRequestError} If validation fails
+ * @throws {UnauthorizedError} If authentication fails
  *
  * @example
- * const user = login('john_doe', 'Emilien123');
- * // Returns: { id: 1, username: 'john_doe', email: 'john@example.com' }
+ * const result = await login('john_doe', 'MyPassword123');
+ * // Returns: { 
+ * //   message: 'Login successful',
+ * //   user: { id: 1, username: 'john_doe', email: 'john@example.com' },
+ * //   token: 'eyJhbGciOiJIUzI1NiIs...'
+ * // }
  */
-export const login = (identifier, password) => {
-  if (!identifier || !password) {
-    throw new BadRequestError("Identifier and password are required");
+export const login = async (identifier, password) => {
+  let validatedIdentifier;
+  let validatedPassword;
+
+  // Validate inputs (may throw BadRequestError)
+  try {
+    validatedIdentifier = validateIdentifier(identifier);
+    validatedPassword = validatePassword(password);
+  } catch (error) {
+    // Re-throw validation errors
+    if (error instanceof BadRequestError) {
+      throw error;
+    }
+    throw new BadRequestError(error.message);
   }
 
-  const user = findByUsernameOrEmail(identifier);
+  try {
+    // Find user in database
+    const user = findByUsernameOrEmail(validatedIdentifier);
 
-  if (!user || user.password !== password) {
-    throw new UnauthorizedError("Invalid credentials");
+    if (!user) {
+      recordFailedAttempt(validatedIdentifier);
+      throw new UnauthorizedError("Invalid credentials");
+    }
+
+    // Compare password using bcrypt (constant-time comparison)
+    const passwordMatch = await comparePasswords(validatedPassword, user.password);
+
+    if (!passwordMatch) {
+      recordFailedAttempt(validatedIdentifier);
+      throw new UnauthorizedError("Invalid credentials");
+    }
+
+    // Clear failed login attempts on successful login
+    clearLoginAttempts(validatedIdentifier);
+
+    // Generate JWT token
+    const token = generateToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    });
+
+    // Return sanitized user data and token
+    return {
+      message: "Login successful",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+      token,
+    };
+  } catch (error) {
+    // Re-throw expected errors
+    if (error instanceof BadRequestError || error instanceof UnauthorizedError) {
+      throw error;
+    }
+
+    // Wrap unexpected errors (log server-side only)
+    logger.error(`Unexpected login error: ${error.message}`);
+    throw new UnauthorizedError("Authentication failed");
   }
-
-  return { id: user.id, username: user.username, email: user.email };
 };
