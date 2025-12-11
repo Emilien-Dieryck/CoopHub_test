@@ -9,7 +9,7 @@
  * - Environment-based configuration
  */
 
-import { LoginCredentials, LoginResponse, ApiError } from '../types';
+import { LoginCredentials, LoginResponse, ApiError } from '../types/types';
 import { API_CONFIG, HTTP_STATUS, ERROR_MESSAGES } from '../config/constants';
 import { sanitizeInput } from '../utils/validation';
 
@@ -124,34 +124,3 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
   }
 };
 
-/**
- * Logs out the current user
- * Clears all authentication data from storage
- * 
- * @example
- * logout()
- * // All auth data cleared from localStorage
- */
-export const logout = (): void => {
-  // Clear authentication data from localStorage
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('userData');
-};
-
-/**
- * Checks if user is currently authenticated
- * Validates presence of auth token and user data
- * 
- * @returns True if authenticated, false otherwise
- * 
- * @example
- * if (isAuthenticatedUser()) {
- *   // Show authenticated UI
- * }
- */
-export const isAuthenticatedUser = (): boolean => {
-  // Check if token exists in localStorage
-  const token = localStorage.getItem('authToken');
-  const user = localStorage.getItem('userData');
-  return !!token && !!user;
-};

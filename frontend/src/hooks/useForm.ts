@@ -11,7 +11,7 @@
  */
 
 import { useState, ChangeEvent, FormEvent } from 'react';
-import { FormErrors } from '../types';
+import { FormErrors } from '../types/types';
 import { validateIdentifier, validatePassword } from '../utils/validation';
 
 /**
@@ -123,9 +123,10 @@ export const useForm = <T extends Record<string, string>>(
   };
 
   /**
-   * Creates form submission handler with validation
+   * Creates form submission handler with validation and CSRF protection
    * - Prevents default form submission
    * - Validates all fields before submission
+   * - Generates CSRF token for form integrity
    * - Manages submission state
    * - Handles errors from submission callback
    * 

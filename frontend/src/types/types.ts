@@ -61,6 +61,7 @@ export interface FormErrors {
 /**
  * Input component props
  * Props for the reusable Input component
+ * Includes all properties needed for an accessible form input
  */
 export interface InputProps {
   /** Unique HTML id for the input */
@@ -84,19 +85,5 @@ export interface InputProps {
   /** Whether field is required */
   required?: boolean;
   /** Autocomplete attribute value */
-  autoComplete?: string;
-}
-
-export interface InputProps {
-  id: string;
-  name: string;
-  type: string;
-  label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  required?: boolean;
   autoComplete?: string;
 }
