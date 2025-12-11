@@ -39,8 +39,7 @@ src/
 └── server.js                # Point d'entrée
 
 logs/
-├── combined.log             # Tous les logs
-└── error.log                # Erreurs uniquement
+└── backend.log                # Logs Winston
 
 tests/
 ├── test-bcrypt.js           # Test hachage
@@ -209,4 +208,3 @@ npm run dev  # Lancer en développement (watch mode)
 - Les mots de passe sont hachés avec bcrypt (10 rounds)
 - Les tokens JWT expirent après 24 heures
 - Le rate limiting se réinitialise automatiquement
-- Aucun `console.log` - tout passe par Winston
