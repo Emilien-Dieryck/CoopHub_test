@@ -11,7 +11,7 @@
 
 import express from "express";
 import { login } from "../controllers/authController.js";
-import { rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
+import { globalRateLimiter, rateLimitMiddleware } from "../middleware/rateLimitMiddleware.js";
 
 /**
  * Express Router instance for authentication routes
@@ -49,6 +49,7 @@ const router = express.Router();
  * @see authController.login for implementation details
  */
 // Expose a simple, legacy-friendly endpoint: POST /api/login
-// Rate limiting prevents brute force attacks
-router.post("/login", rateLimitMiddleware, login);
+// globalRateLimiter: blocks spam (20 req/min per IP) - logs only once when exceeded
+// rateLimitMiddleware: blocks brute force (5 failed attempts per identifier)
+router.post("/login", globalRateLimiter, rateLimitMiddleware, login);
 export default router;

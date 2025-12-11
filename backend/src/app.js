@@ -10,6 +10,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import logger from "./utils/logger.js";
 
 /**
  * Express application instance
@@ -63,10 +64,13 @@ app.use(express.json({ limit: "1mb" }));
 
 /**
  * Request Logging Middleware
- * Logs requests (no sensitive data)
+ * Logs non-login requests (login logging is handled in rate limiter)
  */
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  // Skip /api/login - logging is done in globalRateLimiter
+  if (!req.path.includes('/login')) {
+    logger.info(`${req.method} ${req.originalUrl}`);
+  }
   next();
 });
 
