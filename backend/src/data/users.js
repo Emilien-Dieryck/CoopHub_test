@@ -30,8 +30,8 @@ export const usersData = [
   },
   {
     id: 2,
-    username: "jane_smith",
-    email: "jane@example.com",
+    username: "admin",
+    email: "admin@example.com",
     // Password: "abcde123" (bcrypt hash with 10 rounds)
     password: "$2b$10$znPyWV6KOF2osRbuhiHhou9gdk7ZXnwhim7vsQu5q1EAa1/1T1Yk6",
   },
