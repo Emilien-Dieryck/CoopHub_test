@@ -111,8 +111,7 @@ CoopHub_test/
 ## 📊 Logs
 
 Les logs sont enregistrés dans `backend/logs/` :
-- `combined.log` : tous les logs
-- `error.log` : erreurs uniquement
+- `backend.log` : tous les logs
 
 Format des logs :
 ```
